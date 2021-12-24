@@ -7,6 +7,64 @@ class HDD(ImageDraw.ImageDraw):
     _liste_factorielle = [1]
     debug = False
 
+    @classmethod
+    def _fac(cls, n):
+        dernier = len(cls._liste_factorielle) - 1
+        if n <= dernier:
+            return cls._liste_factorielle[n]
+        else:
+            resultat = cls._liste_factorielle[dernier]
+            for k in range(n - dernier):
+                resultat *= (dernier + k + 1)
+                cls._liste_factorielle.append(resultat)
+            return resultat
+
+    @classmethod
+    def _bezier_bernstein(cls, i, n, t):
+        return round(cls._fac(n) /
+                     (cls._fac(i) * cls._fac(n - i))) * t**i * (1 - t)**(n - i)
+
+    @classmethod
+    def _bezier_un_point_reel(cls, t, liste_points):
+        n = len(liste_points) - 1
+        x = y = 0
+        for i, p in enumerate(liste_points):
+            B = cls._bezier_bernstein(i, n, t)
+            x += B * p[0]
+            y += B * p[1]
+        return (x, y)
+
+    @classmethod
+    def _bezier_points_reels(cls, liste_points, N=100):
+        return [cls._bezier_un_point_reel(u / (N - 1), liste_points)
+                 for u in range(N)]
+
+    @staticmethod
+    def _bbox(polygone):
+        p = polygone[0]
+        mx = Mx = p[0]
+        my = My = p[1]
+        for p in polygone:
+            x, y = p
+            if x < mx: mx = x
+            if x > Mx: Mx = x
+            if y < my: my = y
+            if y > My: My = y
+        return [(mx, my), (Mx, My)]
+
+    @staticmethod
+    def _points_regulierement_repartis(debut, fin, N=10):
+        """ renvoie N+1 points (N étapes du premier au dernier)
+        """
+
+        return [(debut[0] + k * (fin[0] - debut[0]) / N,
+                 debut[1] + k * (fin[1] - debut[1]) / N)
+                for k in range(N + 1)]
+
+    @staticmethod
+    def _distance(p1, p2):
+        return sum((a - b) ** 2 for a, b in zip(p1, p2)) ** .5
+
     @staticmethod
     def _est_dans_poly(x, y, poly):
         """Determine if the point is in the path.
@@ -34,13 +92,10 @@ class HDD(ImageDraw.ImageDraw):
 
     def __init__(self, im, mode=None):
         super().__init__(im, mode)
-        self.ctx = ImageDraw.Draw(im)
+        self._ctx = ImageDraw.Draw(im)
         self.size = im.size
         self.units = (1, 1)
         self.origin = (0, self.size[1])
-
-    def _distance(p1, p2):
-        return sum((a - b) ** 2 for a, b in zip(p1, p2)) ** .5
 
     def _trace_par_couple(self, liste_de_points, *args, **kwargs):
         """avec la méthode line de ImageDraw
@@ -48,15 +103,7 @@ class HDD(ImageDraw.ImageDraw):
 
         liste = zip(liste_de_points, liste_de_points[1:])
         for couple in liste:
-            self.ctx.line(couple, *args, **kwargs)
-
-    def _points_regulierement_repartis(debut, fin, N=10):
-        """ renvoie N+1 points (N étapes du premier au dernier)
-        """
-
-        return [(debut[0] + k * (fin[0] - debut[0]) / N,
-                 debut[1] + k * (fin[1] - debut[1]) / N)
-                for k in range(N + 1)]
+            self._ctx.line(couple, *args, **kwargs)
 
     def _points_devies(self, liste_points, deviation=5):
         """ renvoie une liste de points déviés
@@ -70,48 +117,8 @@ class HDD(ImageDraw.ImageDraw):
             nv_y = _random.normalvariate(y, deviation)
             liste.append((nv_x, nv_y))
             if HDD.debug:
-                self.ctx.point(liste, fill="white")
+                self._ctx.point(liste, fill="white")
         return liste
-
-    def _fac(n):
-        dernier = len(HDD._liste_factorielle) - 1
-        if n <= dernier:
-            return HDD._liste_factorielle[n]
-        else:
-            resultat = HDD._liste_factorielle[dernier]
-            for k in range(n - dernier):
-                resultat *= (dernier + k + 1)
-                HDD._liste_factorielle.append(resultat)
-            return resultat
-
-    def _bezier_bernstein(i, n, t):
-        return round(HDD._fac(n) /
-                     (HDD._fac(i) * HDD._fac(n - i))) * t**i * (1 - t)**(n - i)
-
-    def _bezier_un_point_reel(t, liste_points):
-        n = len(liste_points) - 1
-        x = y = 0
-        for i, p in enumerate(liste_points):
-            B = HDD._bezier_bernstein(i, n, t)
-            x += B * p[0]
-            y += B * p[1]
-        return (x, y)
-
-    def _bezier_points_reels(liste_points, N=100):
-        return [HDD._bezier_un_point_reel(u / (N - 1), liste_points)
-                 for u in range(N)]
-
-    def _bbox(polygone):
-        p = polygone[0]
-        mx = Mx = p[0]
-        my = My = p[1]
-        for p in polygone:
-            x, y = p
-            if x < mx: mx = x
-            if x > Mx: Mx = x
-            if y < my: my = y
-            if y > My: My = y
-        return [(mx, my), (Mx, My)]
 
     def regular_polygon_hd(self, bounding_circle, n_sides,
                            rotation=0, outline=None, width=2):
@@ -121,7 +128,7 @@ class HDD(ImageDraw.ImageDraw):
         xy = ImageDraw._compute_regular_polygon_vertices(bounding_circle,
                                                          n_sides, rotation)
         self.polygon_hd(xy, fill=outline, width=width)
-        return xy, HDD._bbox(xy)
+        return xy, self._bbox(xy)
 
     def polygon_hd(self, xy, *args, **kwargs):
         """ renvoie les sommets et une une bbox
@@ -129,7 +136,7 @@ class HDD(ImageDraw.ImageDraw):
 
         xy += [xy[0]]
         self.line_hd(xy, *args, **kwargs)
-        return xy, HDD._bbox(xy)
+        return xy, self._bbox(xy)
 
     def rectangle_hd(self, xy, *args, **kwargs):
         x0, y0 = xy[0]
@@ -157,14 +164,14 @@ class HDD(ImageDraw.ImageDraw):
             debut, fin = couple
             # on met 6 points de contrôle pour 100 pixels
             # avec au moins 1 !
-            r = max(1, round(HDD._distance(debut, fin) / 100) * 6)
+            r = max(1, round(self._distance(debut, fin) / 100) * 6)
             # points uniformément répartis
-            liste_points = HDD._points_regulierement_repartis(debut, fin, r)
+            liste_points = self._points_regulierement_repartis(debut, fin, r)
             # points déviés des points précédents -> points de contrôle
             # déviation à revoir
             liste_points = self._points_devies(liste_points, r / 4)
             # points qu'on va tracer réellement
-            reels = HDD._bezier_points_reels(liste_points)
+            reels = self._bezier_points_reels(liste_points)
             # ligne entre deux points successifs
             self._trace_par_couple(reels, *args, **kwargs)
 
@@ -214,7 +221,7 @@ class HDD(ImageDraw.ImageDraw):
         if HDD.debug:
             self.line_hd([debut, fin], fill="green")
         # on répartit des points sur cette droite
-        liste_diag = HDD._points_regulierement_repartis(debut, fin, nb)
+        liste_diag = self._points_regulierement_repartis(debut, fin, nb)
         if HDD.debug:
             self.point_hd(liste_diag)
         #
@@ -262,7 +269,7 @@ class HDD(ImageDraw.ImageDraw):
             if HDD.debug:
                 self.line_hd([debut, fin])
             # découverte des zones
-            liste_pts = HDD._points_regulierement_repartis(debut, fin, 2 * nb)
+            liste_pts = self._points_regulierement_repartis(debut, fin, 2 * nb)
             zones = []
             xv, yv = liste_pts[0]
             dans_zone = self._est_dans_poly(xv, yv, polygone)
@@ -328,7 +335,7 @@ class HDD(ImageDraw.ImageDraw):
         # idée : les points sont utilisés comme points de contrôle
         # dans un bézier
         pts = self._points_devies(pts, nb)
-        reels = HDD._bezier_points_reels(pts)
+        reels = self._bezier_points_reels(pts)
             # ligne entre deux points successifs
         self._trace_par_couple(reels, width=width, fill=fill)
 
@@ -339,6 +346,6 @@ class HDD(ImageDraw.ImageDraw):
                 l = [float(d) for d in l.strip().split()]
                 pts.append((self._calc_vers_img(l)))
         pts = self._points_devies(pts, 10)
-        reels = HDD._bezier_points_reels(pts)
+        reels = self._bezier_points_reels(pts)
             # ligne entre deux points successifs
         self._trace_par_couple(reels, width=width, fill=fill)
