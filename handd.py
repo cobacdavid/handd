@@ -1,9 +1,13 @@
-from PIL import ImageDraw
+__author__ = "david cobac"
+__copyright__ = "Copyright 2021, CC-BY-NC-SA"
+__date__ = 20211225
+
+import cairo as _cairo
 import random as _random
 import math as _math
 
 
-class HDD(ImageDraw.ImageDraw):
+class HDD:
     _liste_factorielle = [1]
     debug = False
 
@@ -40,16 +44,51 @@ class HDD(ImageDraw.ImageDraw):
                  for u in range(N)]
 
     @staticmethod
+    def translation(A, angle_degre, longueur):
+        angle_radian = _math.radians(angle_degre)
+        return (A[0] + longueur * _math.cos(angle_radian),
+                A[1] + longueur * _math.sin(angle_radian))
+
+    @staticmethod
+    def rotation(M, angle_degre, centre):
+        angle_radian = _math.radians(angle_degre)
+        c, s = _math.cos(angle_radian), _math.sin(angle_radian)
+        X = centre[0] + (M[0] - centre[0]) * c - (M[1] - centre[1]) * s
+        Y = centre[1] + (M[1] - centre[1]) * c + (M[0] - centre[0]) * s
+        return (X, Y)
+
+    @classmethod
+    def _compute_regular_polygon_vertices(cls, bounding_circle,
+                                          n_sides, rotation):
+        """
+        bounding_circle : (xc, yc, r)
+        rotation en degrés
+        """
+
+        centre = (bounding_circle[0], bounding_circle[1])
+        depart = cls.translation(centre, 0, bounding_circle[2])
+        depart = cls.rotation(depart, rotation, centre)
+        XY = [depart]
+        for _ in range(n_sides - 1):
+            depart = cls.rotation(depart, 360 / n_sides, centre)
+            XY.append(depart)
+        return XY
+
+    @staticmethod
     def _bbox(polygone):
         p = polygone[0]
         mx = Mx = p[0]
         my = My = p[1]
         for p in polygone:
             x, y = p
-            if x < mx: mx = x
-            if x > Mx: Mx = x
-            if y < my: my = y
-            if y > My: My = y
+            if x < mx:
+                mx = x
+            if x > Mx:
+                Mx = x
+            if y < my:
+                my = y
+            if y > My:
+                My = y
         return [(mx, my), (Mx, My)]
 
     @staticmethod
@@ -90,20 +129,26 @@ class HDD(ImageDraw.ImageDraw):
             j = i
         return c
 
-    def __init__(self, im, mode=None):
-        super().__init__(im, mode)
-        self._ctx = ImageDraw.Draw(im)
-        self.size = im.size
+    def __init__(self, cairo_surface, size=None):
+        self._ctx = _cairo.Context(cairo_surface)
+        self.size = size or (cairo_surface.get_width(),
+                             cairo_surface.get_height())
         self.units = (1, 1)
         self.origin = (0, self.size[1])
 
-    def _trace_par_couple(self, liste_de_points, *args, **kwargs):
-        """avec la méthode line de ImageDraw
+    @property
+    def ctx(self):
+        return self._ctx
+
+    def _trace_par_couple(self, liste_de_points):
+        """avec la méthode line_to de cairo
         """
 
         liste = zip(liste_de_points, liste_de_points[1:])
         for couple in liste:
-            self._ctx.line(couple, *args, **kwargs)
+            debut, fin = couple
+            self._ctx.move_to(*debut)
+            self._ctx.line_to(*fin)
 
     def _points_devies(self, liste_points, deviation=5):
         """ renvoie une liste de points déviés
@@ -116,44 +161,41 @@ class HDD(ImageDraw.ImageDraw):
             nv_x = _random.normalvariate(x, deviation)
             nv_y = _random.normalvariate(y, deviation)
             liste.append((nv_x, nv_y))
-            if HDD.debug:
-                self._ctx.point(liste, fill="white")
+            # if HDD.debug:
+            #    self._ctx.point(liste, fill="white")
         return liste
 
-    def regular_polygon_hd(self, bounding_circle, n_sides,
-                           rotation=0, outline=None, width=2):
+    def regular_polygon_hdd(self, bounding_circle, n_sides, rotation=0):
         """ renvoie les sommets et une bbox
         """
 
-        xy = ImageDraw._compute_regular_polygon_vertices(bounding_circle,
-                                                         n_sides, rotation)
-        self.polygon_hd(xy, fill=outline, width=width)
+        xy = self._compute_regular_polygon_vertices(bounding_circle,
+                                                    n_sides, rotation)
+        self.polygon_hdd(xy)
         return xy, self._bbox(xy)
 
-    def polygon_hd(self, xy, *args, **kwargs):
+    def polygon_hdd(self, xy):
         """ renvoie les sommets et une une bbox
         """
 
         xy += [xy[0]]
-        self.line_hd(xy, *args, **kwargs)
+        self.line_hdd(xy)
         return xy, self._bbox(xy)
 
-    def rectangle_hd(self, xy, *args, **kwargs):
+    def rectangle_hdd(self, xy):
         x0, y0 = xy[0]
         x1, y1 = xy[1]
         xy = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)] + [(x0, y0)]
-        self.polygon_hd(xy, *args, **kwargs)
+        return self.polygon_hdd(xy)
 
-    def point_hd(self, xy, fill=None):
+    def point_hdd(self, xy):
         ecart = 5
         for point in xy:
             x, y = point
-            self.line_hd([(x - ecart, y - ecart), (x + ecart, y + ecart)],
-                         fill=fill)
-            self.line_hd([(x - ecart, y + ecart), (x + ecart, y - ecart)],
-                         fill=fill)
+            self.line_hdd([(x - ecart, y - ecart), (x + ecart, y + ecart)])
+            self.line_hdd([(x - ecart, y + ecart), (x + ecart, y - ecart)])
 
-    def line_hd(self, xy, *args, **kwargs):
+    def line_hdd(self, xy):
         """ xy est une liste de point
         line est une ligne brisée
         """
@@ -173,9 +215,14 @@ class HDD(ImageDraw.ImageDraw):
             # points qu'on va tracer réellement
             reels = self._bezier_points_reels(liste_points)
             # ligne entre deux points successifs
-            self._trace_par_couple(reels, *args, **kwargs)
+            self._trace_par_couple(reels)
 
-    def hatch_hd(self, polygone, bbox, width=3, fill="blue", nb=10, angle=45):
+    def hatch_hdd(self, polygone, bbox, nb=10, angle=45):
+        """Hachures
+        angle est transformé pour apartenir à ]-90;90]
+        0 et 90 étant traités comme cas particuliers
+        """
+
         angle = -angle + 90
         angle = angle % 360 - 180
         if angle > 90:
@@ -197,8 +244,8 @@ class HDD(ImageDraw.ImageDraw):
             inf_gche = (inf_gche[0], inf_gche[1] - d)
             sup_droit = (sup_droit[0], sup_droit[1] + d)
         if HDD.debug:
-            self.rectangle_hd(bbox)
-            self.rectangle_hd([inf_gche, sup_droit])
+            self.rectangle_hdd(bbox)
+            self.rectangle_hdd([inf_gche, sup_droit])
         # la droite perp. aux hachures passant par le centre
         centre = [(inf_gche[i] + sup_droit[i]) / 2 for i in range(2)]
         if angle != 0 and angle != 90:
@@ -212,24 +259,24 @@ class HDD(ImageDraw.ImageDraw):
             else:
                 debut = (invdroite(inf_gche[1]), inf_gche[1])
                 fin = (invdroite(sup_droit[1]), sup_droit[1])
-        elif angle == 0:
+        elif angle == 90:
             debut = (centre[0], inf_gche[1])
             fin = (centre[0], sup_droit[1])
-        elif angle == 90:
+        elif angle == 0:
             debut = (inf_gche[0], centre[1])
             fin = (sup_droit[0], centre[1])
         if HDD.debug:
-            self.line_hd([debut, fin], fill="green")
+            self.line_hdd([debut, fin], color=(0, 1, 0))
         # on répartit des points sur cette droite
         liste_diag = self._points_regulierement_repartis(debut, fin, nb)
         if HDD.debug:
-            self.point_hd(liste_diag)
+            self.point_hdd(liste_diag)
         #
         # on trace les perpendiculaires
         for xy in liste_diag:
             xp, yp = xy
             # les limites des hachures
-            if angle !=0 and angle != 90:
+            if angle != 0 and angle != 90:
                 droite = lambda x: -invpente * (x - xp) + yp
                 invdroite = lambda y: -pente * (y - yp) + xp
                 if 0 < angle <= 45:
@@ -260,20 +307,21 @@ class HDD(ImageDraw.ImageDraw):
                         debut = (invdroite(inf_gche[1]), inf_gche[1])
                     if fin[1] > sup_droit[1]:
                         fin = (invdroite(sup_droit[1]), sup_droit[1])
-            elif angle == 0:
+            elif angle == 90:
                 debut = (inf_gche[0], yp)
                 fin = (sup_droit[0], yp)
-            elif angle == 90:
+            elif angle == 0:
                 debut = (xp, inf_gche[1])
                 fin = (xp, sup_droit[1])
             if HDD.debug:
-                self.line_hd([debut, fin])
+                self.line_hdd([debut, fin])
             # découverte des zones
             liste_pts = self._points_regulierement_repartis(debut, fin, 2 * nb)
             zones = []
             xv, yv = liste_pts[0]
             dans_zone = self._est_dans_poly(xv, yv, polygone)
-            if dans_zone: zones.append([])
+            if dans_zone:
+                zones.append([])
             i_zone = 0
             for p in liste_pts:
                 xv, yv = p
@@ -291,10 +339,9 @@ class HDD(ImageDraw.ImageDraw):
             # tracé des zones
             for zone in zones:
                 if len(zone) > 1:
-                    self.line_hd([zone[0], zone[-1]],
-                                 width=width, fill=fill)
+                    self.line_hdd([zone[0], zone[-1]])
 
-    def dot_hd(self, polygone, bbox, sep=5, fill="red"):
+    def dot_hdd(self, polygone, bbox, sep=5):
         """ polygone : liste de tuples
         bbox : [(x0, y0), (x1, y1)]
         """
@@ -307,15 +354,15 @@ class HDD(ImageDraw.ImageDraw):
             for y in range(round(y0), round(y1), sep):
                 if self._est_dans_poly(x, y, polygone):
                     liste.append((x, y))
-        self.point_hd(self._points_devies(liste), fill=fill)
+        self.point_hdd(self._points_devies(liste))
 
-    def axes_hd(self, xy, width=3, fill="black", units=None):
+    def axes_hdd(self, xy, units=None):
         if units:
             self.units = units
         self.origin = xy
         x, y = xy
-        self.line_hd([(0, y), (self.size[0], y)], width=width, fill=fill)
-        self.line_hd([(x, self.size[1]), (x, 0)], width=width, fill=fill)
+        self.line_hdd([(0, y), (self.size[0], y)])
+        self.line_hdd([(x, self.size[1]), (x, 0)])
 
     def _calc_vers_img(self, xy):
         xc, yc = self.origin
@@ -328,7 +375,7 @@ class HDD(ImageDraw.ImageDraw):
     def _img_vers_calc(self, xy):
         pass
 
-    def function_hd(self, f, xmin, xmax, nb=15, width=3, fill="black"):
+    def function_hdd(self, f, xmin, xmax, nb=15):
         liste_x = [xmin + k * (xmax - xmin) / nb for k in range(nb + 1)]
         liste_y = [f(x) for x in liste_x]
         pts = [self._calc_vers_img(xy) for xy in zip(liste_x, liste_y)]
@@ -336,10 +383,10 @@ class HDD(ImageDraw.ImageDraw):
         # dans un bézier
         pts = self._points_devies(pts, nb)
         reels = self._bezier_points_reels(pts)
-            # ligne entre deux points successifs
-        self._trace_par_couple(reels, width=width, fill=fill)
+        # ligne entre deux points successifs
+        self._trace_par_couple(reels)
 
-    def data(self, fichier, width=3, fill="black"):
+    def data(self, fichier):
         pts = []
         with open(fichier) as fh:
             for l in fh:
@@ -347,5 +394,5 @@ class HDD(ImageDraw.ImageDraw):
                 pts.append((self._calc_vers_img(l)))
         pts = self._points_devies(pts, 10)
         reels = self._bezier_points_reels(pts)
-            # ligne entre deux points successifs
-        self._trace_par_couple(reels, width=width, fill=fill)
+        # ligne entre deux points successifs
+        self._trace_par_couple(reels)
