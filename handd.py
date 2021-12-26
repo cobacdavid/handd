@@ -216,6 +216,10 @@ class HDD:
             reels = self._bezier_points_reels(liste_points)
             # ligne entre deux points successifs
             self._trace_par_couple(reels)
+            # on trace chaque ligne pour avoir
+            # possiblement un effet de superposition
+            # avec la transparence (comme un feutre)
+            self._ctx.stroke()
 
     def hatch_hdd(self, polygone, bbox, nb=10, angle=45):
         """Hachures
