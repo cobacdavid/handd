@@ -23,7 +23,6 @@ H = 800 - offset
 img = cairo.ImageSurface(cairo.FORMAT_ARGB32, W + offset, H + offset)
 calque = HDD(img)
 ctx = calque.ctx
-ctx.set_line_cap(cairo.LINE_CAP_ROUND)
 
 # fond blanc
 ctx.set_source_rgb(1, 1, 1)

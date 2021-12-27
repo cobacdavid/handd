@@ -101,6 +101,19 @@ class HDD:
                 for k in range(N + 1)]
 
     @staticmethod
+    def _points_regulierement_repartis_cercle(centre, rayon, a_deb, a_fin):
+        """
+        """
+
+        points = []
+        a = a_deb
+        while a <= a_fin:
+            points.append((centre[0] + rayon * _math.cos(_math.radians(a)),
+                           centre[1] + rayon * _math.sin(_math.radians(a))))
+            a += 10
+        return points
+
+    @staticmethod
     def _distance(p1, p2):
         return sum((a - b) ** 2 for a, b in zip(p1, p2)) ** .5
 
@@ -131,6 +144,7 @@ class HDD:
 
     def __init__(self, cairo_surface, size=None):
         self._ctx = _cairo.Context(cairo_surface)
+        self._ctx.set_line_cap(_cairo.LINE_CAP_ROUND)
         self.size = size or (cairo_surface.get_width(),
                              cairo_surface.get_height())
         self.units = (1, 1)
@@ -220,6 +234,21 @@ class HDD:
             # possiblement un effet de superposition
             # avec la transparence (comme un feutre)
             self._ctx.stroke()
+
+    def sector_hdd(self, xy, r, a_debut, a_fin):
+        polygone = [xy]
+        A = (xy[0] + r * _math.cos(_math.radians(a_debut)),
+             xy[1] + r * _math.sin(_math.radians(a_debut)))
+        polygone.append(A)
+        polygone += self._points_regulierement_repartis_cercle(
+            xy, r, a_debut, a_fin)
+        polygone.append(xy)
+        return self.polygon_hdd(polygone)
+
+    def circle_hdd(self, xy, r):
+        polygone = self._points_regulierement_repartis_cercle(
+            xy, r, 0, 360)
+        return self.polygon_hdd(polygone)
 
     def hatch_hdd(self, polygone, bbox, nb=10, angle=45):
         """Hachures
