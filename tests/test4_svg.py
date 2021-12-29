@@ -4,14 +4,17 @@ import cairo
 
 
 class Rectangle:
-    def __init__(self, xy, calque):
-        self.xy = xy
+    def __init__(self, x, y, w, h, calque):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
         self.calque = calque
 
     def affiche(self, gris=1, width=0):
         self.calque.set_line_width(width)
         self.calque.set_source_rgb(gris, gris, gris)
-        p = self.calque.rectangle_hdd(self.xy)
+        p = self.calque.rectangle_hdd(self.x, self.y, self.w, self.h)
         self.calque.stroke()
         return p
 
@@ -34,8 +37,7 @@ rectangles = []
 for l in range(H // dimh):
     for c in range(W // dimw):
         A = (offset / 2 + c * dimw, offset / 2 + l * dimh)
-        B = (offset / 2 + (c + 1) * dimw, offset / 2 + (l + 1) * dimh)
-        rectangles.append(Rectangle([A, B], ctx))
+        rectangles.append(Rectangle(A[0], A[1], dimw, dimh, ctx))
 
 info_rectangles = []
 for c in rectangles:
@@ -44,7 +46,7 @@ for c in rectangles:
 noise = OpenSimplex()
 for i, pack_r in enumerate(info_rectangles):
     r, (p, bb) = pack_r
-    n = noise.noise3d(r.xy[0][0], r.xy[0][1], i / 100)
+    n = noise.noise3d(r.x, r.y, i / 100)
     angle = int(n * 90) / 2
     nb = max(3, int((n + 1) * 30))
     width = 1 + int(5 * (150 - (nb - 3)) / 150)

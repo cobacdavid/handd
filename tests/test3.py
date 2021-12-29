@@ -14,8 +14,8 @@ class Carre:
 
     def affiche(self):
         self.calque.set_line_width(0)
-        p = self.calque.regular_polygon_hdd((self.c, self.l, self.dim),
-                                                4, math.pi / 4)
+        p = self.calque.regular_polygon_hdd(self.c, self.l, self.dim,
+                                            4, math.pi / 4)
         self.calque.stroke()
         return p
 

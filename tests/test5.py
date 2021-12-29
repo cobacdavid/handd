@@ -4,14 +4,17 @@ import math
 
 
 class Rectangle:
-    def __init__(self, xy, calque):
-        self.xy = xy
+    def __init__(self, x, y, w, h, calque):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
         self.calque = calque
 
     def affiche(self, gris=0, width=0):
         self.calque.set_line_width(width)
         self.calque.set_source_rgb(gris, gris, gris)
-        p = self.calque.rectangle_hdd(self.xy)
+        p = self.calque.rectangle_hdd(self.x, self.y, self.w, self.h)
         self.calque.stroke()
         return p
 
@@ -35,7 +38,7 @@ N = 6
 for _ in range(N):
     angle = math.tau / N
     ctx.rotate(angle)
-    rectangle = Rectangle([(0, 0), (200, 200)], ctx)
+    rectangle = Rectangle(0, 0, 200, 200, ctx)
     ctx.set_source_rgb(0, 0, 0)
     p, bb = rectangle.affiche(width=10)
     ctx.stroke()

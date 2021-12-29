@@ -175,46 +175,45 @@ class HDD(_cairo.Context):
                 self.save()
                 self.set_source_rgb(*HDD.debug_color)
                 self.set_line_width(1)
-                self.round_point_hdd(liste)
+                self.lround_point_hdd(liste)
                 self.stroke()
                 self.restore()
         return liste
 
-    def regular_polygon_hdd(self, bounding_circle, n_sides, angle_radian=0):
+    def regular_polygon_hdd(self, xc, yc, r, n_sides, angle_radian=0):
         """ renvoie les sommets et une bbox
         """
 
-        xy = self._compute_regular_polygon_vertices(bounding_circle,
+        xy = self._compute_regular_polygon_vertices((xc, yc, r),
                                                     n_sides, angle_radian)
-        self.polygon_hdd(xy)
+        self.lpolygon_hdd(xy)
         return xy, self._bbox(xy)
 
-    def polygon_hdd(self, xy):
+    def lpolygon_hdd(self, xy):
         """ renvoie les sommets et une une bbox
         """
 
         xy += [xy[0]]
-        self.line_hdd(xy)
+        self.lline_hdd(xy)
         return xy, self._bbox(xy)
 
-    def rectangle_hdd(self, xy):
-        x0, y0 = xy[0]
-        x1, y1 = xy[1]
-        xy = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)] + [(x0, y0)]
-        return self.polygon_hdd(xy)
+    def rectangle_hdd(self, x, y, w, h):
+        x1, y1 = x + w, y + h
+        xy = [(x, y), (x1, y), (x1, y1), (x, y1)] + [(x, y)]
+        return self.lpolygon_hdd(xy)
 
-    def round_point_hdd(self, xy):
+    def lround_point_hdd(self, xy):
         for coords in xy:
             self.arc(coords[0], coords[1], 2, 0, _math.tau)
 
-    def point_hdd(self, xy):
+    def lpoint_hdd(self, xy):
         ecart = 5
         for point in xy:
             x, y = point
-            self.line_hdd([(x - ecart, y - ecart), (x + ecart, y + ecart)])
-            self.line_hdd([(x - ecart, y + ecart), (x + ecart, y - ecart)])
+            self.lline_hdd([(x - ecart, y - ecart), (x + ecart, y + ecart)])
+            self.lline_hdd([(x - ecart, y + ecart), (x + ecart, y - ecart)])
 
-    def line_hdd(self, xy):
+    def lline_hdd(self, xy):
         """ xy est une liste de point
         line est une ligne brisée
         """
@@ -240,25 +239,25 @@ class HDD(_cairo.Context):
             # avec la transparence (comme un feutre)
             self.stroke()
 
-    def sector_hdd(self, xy, r, a_debut, a_fin):
-        polygone = [xy]
-        A = (xy[0] + r * _math.cos(a_debut),
-             xy[1] + r * _math.sin(a_debut))
+    def sector_hdd(self, x, y, r, a_debut, a_fin):
+        polygone = [(x, y)]
+        A = (x + r * _math.cos(a_debut),
+             y + r * _math.sin(a_debut))
         polygone.append(A)
         polygone += self._points_regulierement_repartis_cercle(
-            xy, r, a_debut, a_fin)
-        polygone.append(xy)
-        return self.polygon_hdd(polygone)
+            (x, y), r, a_debut, a_fin)
+        polygone.append((x, y))
+        return self.lpolygon_hdd(polygone)
         # en-dessous solution essayée mais non retenue
         # pts = self._points_devies(polygone, 10)
         # reels = self._bezier_points_reels(pts)
         # self._trace_par_couple(reels)
         # return reels, self._bbox(reels)
 
-    def circle_hdd(self, xy, r):
+    def circle_hdd(self, xc, yc, r):
         polygone = self._points_regulierement_repartis_cercle(
-            xy, r, 0, _math.tau)
-        return self.polygon_hdd(polygone)
+            (xc, yc), r, 0, _math.tau)
+        return self.lpolygon_hdd(polygone)
 
     def hatch_hdd(self, polygone, bbox, nb=10, angle=_math.pi / 4):
         """Hachures
@@ -290,8 +289,11 @@ class HDD(_cairo.Context):
             self.save()
             self.set_source_rgb(*HDD.debug_color)
             self.set_line_width(1)
-            self.rectangle_hdd(bbox)
-            self.rectangle_hdd([inf_gche, sup_droit])
+            self.rectangle_hdd(bbox[0][0], bbox[0][1], w, h)
+            self.rectangle_hdd(inf_gche[0],
+                               inf_gche[1],
+                               sup_droit[0] - inf_gche[0],
+                               sup_droit[1] - inf_gche[1])
             self.stroke()
             self.restore()
         # la droite perp. aux hachures passant par le centre
@@ -317,7 +319,7 @@ class HDD(_cairo.Context):
             self.save()
             self.set_source_rgb(*HDD.debug_color)
             self.set_line_width(1)
-            self.line_hdd([debut, fin])
+            self.lline_hdd([debut, fin])
             self.stroke()
             self.restore()
         # on répartit des points sur cette droite
@@ -326,7 +328,7 @@ class HDD(_cairo.Context):
             self.save()
             self.set_source_rgb(*HDD.debug_color)
             self.set_line_width(1)
-            self.round_point_hdd(liste_diag)
+            self.lround_point_hdd(liste_diag)
             self.stroke()
             self.restore()
         #
@@ -375,7 +377,7 @@ class HDD(_cairo.Context):
                 self.save()
                 self.set_source_rgb(*HDD.debug_color)
                 self.set_line_width(1)
-                self.line_hdd([debut, fin])
+                self.lline_hdd([debut, fin])
                 self.stroke()
                 self.restore()
             # découverte des zones
@@ -402,7 +404,7 @@ class HDD(_cairo.Context):
             # tracé des zones
             for zone in zones:
                 if len(zone) > 1:
-                    self.line_hdd([zone[0], zone[-1]])
+                    self.lline_hdd([zone[0], zone[-1]])
 
     def dot_hdd(self, polygone, bbox, sep=5):
         """ polygone : liste de tuples
@@ -417,15 +419,14 @@ class HDD(_cairo.Context):
             for y in range(round(y0), round(y1), sep):
                 if self._est_dans_poly(x, y, polygone):
                     liste.append((x, y))
-        self.point_hdd(self._points_devies(liste))
+        self.lpoint_hdd(self._points_devies(liste))
 
-    def axes_hdd(self, xy, units=None):
+    def axes_hdd(self, xo, yo, units=None):
         if units:
             self.units = units
-        self.origin = xy
-        x, y = xy
-        self.line_hdd([(0, y), (self.size[0], y)])
-        self.line_hdd([(x, self.size[1]), (x, 0)])
+        self.origin = (xo, yo)
+        self.lline_hdd([(0, yo), (self.size[0], yo)])
+        self.lline_hdd([(xo, self.size[1]), (xo, 0)])
 
     def _calc_vers_img(self, xy):
         xc, yc = self.origin
