@@ -11,6 +11,7 @@ class HDD(_cairo.Context):
     _liste_factorielle = [1]
     debug = False
     debug_color = (1, 1, 1)
+    deviation = 3
 
     @classmethod
     def _fac(cls, n):
@@ -26,8 +27,8 @@ class HDD(_cairo.Context):
 
     @classmethod
     def _bezier_bernstein(cls, i, n, t):
-        return round(cls._fac(n) /
-                     (cls._fac(i) * cls._fac(n - i))) * t**i * (1 - t)**(n - i)
+        return round(cls._fac(n) / (cls._fac(i) * cls._fac(n - i))) *\
+            t**i * (1 - t)**(n - i)
 
     @classmethod
     def _bezier_un_point_reel(cls, t, liste_points):
@@ -43,6 +44,10 @@ class HDD(_cairo.Context):
     def _bezier_points_reels(cls, liste_points, N=100):
         return [cls._bezier_un_point_reel(u / (N - 1), liste_points)
                  for u in range(N)]
+
+    @classmethod
+    def is_in_polygon(cls, x, y, p):
+        return cls._est_dans_poly(x, y, p)
 
     @staticmethod
     def translation(A, angle_radian, longueur):
@@ -160,7 +165,7 @@ class HDD(_cairo.Context):
             self.move_to(*debut)
             self.line_to(*fin)
 
-    def _points_devies(self, liste_points, deviation=5):
+    def _points_devies(self, liste_points):
         """ renvoie une liste de points déviés
         fonction à grandement améliorer
         """
@@ -168,8 +173,8 @@ class HDD(_cairo.Context):
         liste = []
         for point in liste_points:
             x, y = point
-            nv_x = _random.normalvariate(x, deviation)
-            nv_y = _random.normalvariate(y, deviation)
+            nv_x = _random.normalvariate(x, HDD.deviation)
+            nv_y = _random.normalvariate(y, HDD.deviation)
             liste.append((nv_x, nv_y))
             if HDD.debug:
                 self.save()
@@ -180,15 +185,6 @@ class HDD(_cairo.Context):
                 self.restore()
         return liste
 
-    def regular_polygon_hdd(self, xc, yc, r, n_sides, angle_radian=0):
-        """ renvoie les sommets et une bbox
-        """
-
-        xy = self._compute_regular_polygon_vertices((xc, yc, r),
-                                                    n_sides, angle_radian)
-        self.lpolygon_hdd(xy)
-        return xy, self._bbox(xy)
-
     def lpolygon_hdd(self, xy):
         """ renvoie les sommets et une une bbox
         """
@@ -196,11 +192,6 @@ class HDD(_cairo.Context):
         xy += [xy[0]]
         self.lline_hdd(xy)
         return xy, self._bbox(xy)
-
-    def rectangle_hdd(self, x, y, w, h):
-        x1, y1 = x + w, y + h
-        xy = [(x, y), (x1, y), (x1, y1), (x, y1)] + [(x, y)]
-        return self.lpolygon_hdd(xy)
 
     def lround_point_hdd(self, xy):
         for coords in xy:
@@ -224,12 +215,11 @@ class HDD(_cairo.Context):
             debut, fin = couple
             # on met 6 points de contrôle pour 100 pixels
             # avec au moins 1 !
-            r = max(1, round(self._distance(debut, fin) / 100) * 6)
+            r = max(1, round(self._distance(debut, fin) / 100 * 6))
             # points uniformément répartis
             liste_points = self._points_regulierement_repartis(debut, fin, r)
             # points déviés des points précédents -> points de contrôle
-            # déviation à revoir
-            liste_points = self._points_devies(liste_points, r / 4)
+            liste_points = self._points_devies(liste_points)
             # points qu'on va tracer réellement
             reels = self._bezier_points_reels(liste_points)
             # ligne entre deux points successifs
@@ -239,27 +229,64 @@ class HDD(_cairo.Context):
             # avec la transparence (comme un feutre)
             self.stroke()
 
-    def sector_hdd(self, x, y, r, a_debut, a_fin):
-        polygone = [(x, y)]
+    def rectangle_hdd(self, x, y, w, h):
+        x1, y1 = x + w, y + h
+        xy = [(x, y), (x1, y), (x1, y1), (x, y1)]
+        return self.lpolygon_hdd(xy)
+
+    def regular_polygon_hdd(self, xc, yc, r, n_sides, angle_radian=0):
+        """ renvoie les sommets et une bbox
+        """
+
+        xy = self._compute_regular_polygon_vertices((xc, yc, r),
+                                                    n_sides, angle_radian)
+        self.lpolygon_hdd(xy)
+        return xy, self._bbox(xy)
+
+    def disc_hdd(self, x, y, r, a_debut, a_fin=None):
+        if not a_fin:
+            a_fin = a_debut + _math.tau
+        polygone = self._points_regulierement_repartis_cercle(
+            (x, y), r, a_debut, a_fin)
+        liste_points = self._points_devies(polygone)
+        reels = self._bezier_points_reels(liste_points)
+        self._trace_par_couple(reels)
+        return reels, self._bbox(reels)
+
+    def sector_hdd(self, x, y, r, a_debut, a_fin, dev=3):
+        HDD.deviation *= dev
+        polygone = []
         A = (x + r * _math.cos(a_debut),
              y + r * _math.sin(a_debut))
-        polygone.append(A)
-        polygone += self._points_regulierement_repartis_cercle(
+        polygone = self._points_regulierement_repartis_cercle(
             (x, y), r, a_debut, a_fin)
-        polygone.append((x, y))
-        return self.lpolygon_hdd(polygone)
+        liste_points = self._points_devies(polygone)
+        reels = self._bezier_points_reels(liste_points)
+        self._trace_par_couple(reels)
+        HDD.deviation /= dev
+        self.lline_hdd([(x, y), reels[0]])
+        self.lline_hdd([(x, y), reels[-1]])
+        return [(x, y)] + reels + [(x, y)], self._bbox(reels)
         # en-dessous solution essayée mais non retenue
         # pts = self._points_devies(polygone, 10)
         # reels = self._bezier_points_reels(pts)
         # self._trace_par_couple(reels)
         # return reels, self._bbox(reels)
 
-    def circle_hdd(self, xc, yc, r):
+    def circle_hdd(self, xc, yc, r, dev=3):
+        HDD.deviation *= dev
         polygone = self._points_regulierement_repartis_cercle(
             (xc, yc), r, 0, _math.tau)
-        return self.lpolygon_hdd(polygone)
+        liste_points = self._points_devies(polygone)
+        reels = self._bezier_points_reels(liste_points)
+        self._trace_par_couple(reels)
+        HDD.deviation /= dev
+        return polygone, self._bbox(polygone)
 
-    def hatch_hdd(self, polygone, bbox, nb=10, angle=_math.pi / 4):
+    def hatch_hdd(self, polygone, bbox,
+                  nb=10,
+                  angle=_math.pi / 4,
+                  condition=lambda x, y: True):
         """Hachures
         angle est transformé pour appartenir à ]-90;90]
         0 et 90 étant traités comme cas particuliers
@@ -377,20 +404,23 @@ class HDD(_cairo.Context):
                 self.save()
                 self.set_source_rgb(*HDD.debug_color)
                 self.set_line_width(1)
-                self.lline_hdd([debut, fin])
+                try:
+                    self.lline_hdd([debut, fin])
+                except:
+                    pass
                 self.stroke()
                 self.restore()
             # découverte des zones
             liste_pts = self._points_regulierement_repartis(debut, fin, 10 * nb)
             zones = []
             xv, yv = liste_pts[0]
-            dans_zone = self._est_dans_poly(xv, yv, polygone)
+            dans_zone = self._est_dans_poly(xv, yv, polygone) and condition(xv, yv)
             if dans_zone:
                 zones.append([])
             i_zone = 0
             for p in liste_pts:
                 xv, yv = p
-                if self._est_dans_poly(xv, yv, polygone):
+                if self._est_dans_poly(xv, yv, polygone) and condition(xv, yv):
                     if dans_zone:
                         zones[i_zone].append(p)
                     else:
@@ -445,7 +475,7 @@ class HDD(_cairo.Context):
         pts = [self._calc_vers_img(xy) for xy in zip(liste_x, liste_y)]
         # idée : les points sont utilisés comme points de contrôle
         # dans un bézier
-        pts = self._points_devies(pts, nb)
+        pts = self._points_devies(pts)
         reels = self._bezier_points_reels(pts)
         # ligne entre deux points successifs
         self._trace_par_couple(reels)
@@ -456,7 +486,7 @@ class HDD(_cairo.Context):
             for l in fh:
                 l = [float(d) for d in l.strip().split()]
                 pts.append((self._calc_vers_img(l)))
-        pts = self._points_devies(pts, 10)
+        pts = self._points_devies(pts)
         reels = self._bezier_points_reels(pts)
         # ligne entre deux points successifs
         self._trace_par_couple(reels)

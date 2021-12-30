@@ -25,15 +25,17 @@ ctx.dot_hdd(poly, bb_poly, sep=15)
 ctx.stroke()
 
 
+HDD.deviation = 5
 ctx.set_source_rgb(1, 1, 1)
 ctx.set_line_width(1)
 ctx.axes_hdd(400, 700, units=(100, 100))
 ctx.stroke()
 ctx.set_source_rgb(1, 0, 0)
 ctx.set_line_width(3)
+HDD.deviation = 50
 ctx.function_hdd(lambda x: math.sin(x),
                    -2 * math.pi, 2 * math.pi,
-                   nb=100)
+                   nb=10)
 ctx.stroke()
 
 img.write_to_png("test1.png")

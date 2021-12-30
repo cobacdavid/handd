@@ -11,19 +11,20 @@ ctx.set_source_rgb(0, 0, 0)
 ctx.rectangle(0, 0, W, H)
 ctx.fill()
 
+ctx.set_source_rgba(0, 0, 0, 0)
+pn, bbn = ctx.circle_hdd(400, 250, 40)
+
 ctx.set_source_rgba(1, 1, 0, .95)
 ctx.set_line_width(10)
 p, bb = ctx.sector_hdd(350, 400, 300,
                        math.radians(35),
-                       math.radians(325))
-ctx.hatch_hdd(p, bb, nb=50)
+                       math.radians(325),
+                       dev=5)
+ctx.hatch_hdd(p, bb, nb=50,
+              condition=lambda x, y: not HDD.is_in_polygon(x, y, pn))
 ctx.stroke()
 
-ctx.set_source_rgba(0, 0, 0, 0)
-p, bb = ctx.circle_hdd(400, 250, 40)
-ctx.set_source_rgb(0, 0, 0)
-ctx.hatch_hdd(p, bb, angle=20, nb=7)
-ctx.stroke()
+
 
 pilules = {"rouge": [(1, 0, 0), (550, 400)],
            "bleue": [(0, 0, 1), (730, 400)]}

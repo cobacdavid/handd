@@ -17,8 +17,10 @@ ctx.set_source_rgb(0, 0, 0)
 ctx.rectangle(0, 0, W, H)
 ctx.fill()
 
+HDD.deviation = 10
+
 offset = 100
-ctx.set_line_width(1)
+ctx.set_line_width(9)
 ctx.translate(W / 2, H / 2)
 for i in range(7):
     couleur_hsv = (200 / 360, 1 - 1 / 1.3 ** i, 1)

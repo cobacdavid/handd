@@ -3,9 +3,9 @@ from handd import HDD
 from opensimplex import OpenSimplex
 import math
 
-HDD.debug = True
+HDD.debug = not True
 HDD.debug_color = (.25, 0.25, 0.25)
-
+HDD.deviation = 0
 
 class Rectangle:
     def __init__(self, x, y, w, h, calque):
@@ -23,7 +23,7 @@ class Rectangle:
         return p
 
 
-offset = 20
+offset = 0
 H = 2_400 - offset
 W = 1_080 - offset
 
@@ -36,8 +36,8 @@ dimw = W // 5
 dimh = H // 5
 ratio = dimw / dimh
 rectangles = []
-for l in range(H // dimh):
-    for c in range(W // dimw):
+for l in range(H // dimh + 2):
+    for c in range(W // dimw + 2):
         A = (offset / 2 + c * dimw, offset / 2 + l * dimh)
         rectangles.append(Rectangle(A[0], A[1], dimw, dimh, ctx))
 
@@ -50,7 +50,7 @@ for i, pack_r in enumerate(info_rectangles):
     r, (p, bb) = pack_r
     n = noise.noise2d(r.x, r.y)
     angle = n * math.pi / 2
-    nb = max(3, int((n + 1) * 8))
+    nb = max(3, int((n + 1) * 30))
     width = 1 + int(10 * (150 - (nb - 3)) / 150)
     ctx.set_line_width(width)
     ctx.set_source_rgb(1, 1, 1)
