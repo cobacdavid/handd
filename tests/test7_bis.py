@@ -25,7 +25,7 @@ def trace_rectangle(i):
         condition = lambda x, y: True
     else:
         pi = trace_rectangle(i - 1)
-        condition = lambda x, y: not HDD.is_in_polygon(x, y, pi)
+        condition = lambda x, y: not HDD.is_in(x, y, pi)
     #
     ctx.save()
     if i == 0:

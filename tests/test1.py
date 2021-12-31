@@ -35,7 +35,7 @@ ctx.set_line_width(3)
 HDD.deviation = 50
 ctx.function_hdd(lambda x: math.sin(x),
                    -2 * math.pi, 2 * math.pi,
-                   nb=10)
+                   nb=50)
 ctx.stroke()
 
 img.write_to_png("test1.png")

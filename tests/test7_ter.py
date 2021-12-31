@@ -48,7 +48,7 @@ ctx.translate(W / 2, H / 2)
 for i in range(len(info_rect)):
     print(info_rect[i][0])
     if i != len(info_rect) - 1:
-        condition = lambda x, y: not HDD.is_in_polygon(x, y, info_rect[i][0])
+        condition = lambda x, y: not HDD.is_in(x, y, info_rect[i][0])
     else:
         condition = lambda x, y: True
     ctx.set_source_rgb(1, 0, 0)

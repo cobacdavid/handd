@@ -46,7 +46,7 @@ class HDD(_cairo.Context):
                  for u in range(N)]
 
     @classmethod
-    def is_in_polygon(cls, x, y, p):
+    def is_in(cls, x, y, p):
         return cls._est_dans_poly(x, y, p)
 
     @staticmethod
@@ -105,16 +105,19 @@ class HDD(_cairo.Context):
                 for k in range(N + 1)]
 
     @staticmethod
-    def _points_regulierement_repartis_cercle(centre, rayon, a_deb, a_fin):
+    def _points_regulierement_repartis_cercle(centre, rayon, a_deb, a_fin,
+                                              step=.01):
         """
         """
 
         points = []
         a = a_deb
-        while a <= a_fin:
+        while a < a_fin:
             points.append((centre[0] + rayon * _math.cos(a),
                            centre[1] + rayon * _math.sin(a)))
-            a += 0.15
+            a += step
+        points.append((centre[0] + rayon * _math.cos(a_fin),
+                           centre[1] + rayon * _math.sin(a_fin)))
         return points
 
     @staticmethod
@@ -254,16 +257,15 @@ class HDD(_cairo.Context):
         return reels, self._bbox(reels)
 
     def sector_hdd(self, x, y, r, a_debut, a_fin, dev=3):
-        HDD.deviation *= dev
+        save_dev = HDD.deviation
+        HDD.deviation = dev
         polygone = []
-        A = (x + r * _math.cos(a_debut),
-             y + r * _math.sin(a_debut))
         polygone = self._points_regulierement_repartis_cercle(
             (x, y), r, a_debut, a_fin)
         liste_points = self._points_devies(polygone)
         reels = self._bezier_points_reels(liste_points)
         self._trace_par_couple(reels)
-        HDD.deviation /= dev
+        HDD.deviation = save_dev
         self.lline_hdd([(x, y), reels[0]])
         self.lline_hdd([(x, y), reels[-1]])
         return [(x, y)] + reels + [(x, y)], self._bbox(reels)
@@ -273,14 +275,26 @@ class HDD(_cairo.Context):
         # self._trace_par_couple(reels)
         # return reels, self._bbox(reels)
 
-    def circle_hdd(self, xc, yc, r, dev=3):
-        HDD.deviation *= dev
+    def real_circle_hdd(self, xc, yc, r, step=.005):
+        A = (xc + r, yc)
         polygone = self._points_regulierement_repartis_cercle(
-            (xc, yc), r, 0, _math.tau)
+            (xc, yc), r, 0, _math.tau, step=step)
+        polygone.append(A)
+        bbox = [(xc - r, yc - r), (xc + r, yc + r)]
+        self.arc(xc, yc, r, 0, _math.tau)
+        return polygone, bbox
+
+    def circle_hdd(self, xc, yc, r, dev=3, step=.01):
+        save_dev = HDD.deviation
+        HDD.deviation = dev
+        debut = _random.random() * _math.tau
+        fin = debut + _math.tau
+        polygone = self._points_regulierement_repartis_cercle(
+            (xc, yc), r, debut, fin, step=step)
         liste_points = self._points_devies(polygone)
         reels = self._bezier_points_reels(liste_points)
         self._trace_par_couple(reels)
-        HDD.deviation /= dev
+        HDD.deviation = save_dev
         return polygone, self._bbox(polygone)
 
     def hatch_hdd(self, polygone, bbox,

@@ -21,7 +21,7 @@ p, bb = ctx.sector_hdd(350, 400, 300,
                        math.radians(325),
                        dev=5)
 ctx.hatch_hdd(p, bb, nb=50,
-              condition=lambda x, y: not HDD.is_in_polygon(x, y, pn))
+              condition=lambda x, y: not HDD.is_in(x, y, pn))
 ctx.stroke()
 
 
