@@ -494,7 +494,7 @@ class HDD(_cairo.Context):
         # ligne entre deux points successifs
         self._trace_par_couple(reels)
 
-    def data(self, fichier):
+    def data_hdd(self, fichier):
         pts = []
         with open(fichier) as fh:
             for l in fh:

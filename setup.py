@@ -9,7 +9,6 @@ setup(
     description='HAND-Drawn module for pycairo',
     long_description_content_type='text/markdown',
     long_description=long_description,
-    # url='https://twitter.com/david_cobac',
     url="https://github.com/cobacdavid/handd",
     author='David COBAC',
     author_email='david.cobac@gmail.com',
@@ -17,7 +16,7 @@ setup(
     keywords=['hand-drawn',
               'pycairo',
               'realistic',
-              'draw'],
+              'drawing'],
     packages=find_packages(),
     install_requires=["pycairo"],
     python_requires='>3.6'

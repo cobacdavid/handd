@@ -49,8 +49,6 @@ def trace_rectangle(i):
     new_p = []
     for xy in p:
         new_p.append(new_M.transform_point(xy[0], xy[1]))
-    print(p, new_p)
-
     return new_p
 
 
