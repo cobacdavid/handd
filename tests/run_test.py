@@ -12,6 +12,7 @@ def execute_python(f):
 
 
 liste = glob.glob("test*.py")
+liste += glob.glob("catriona*.py")
 print(liste)
 for f in liste:
     p = Process(target=execute_python, args=(f,))

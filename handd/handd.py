@@ -162,12 +162,9 @@ class HDD(_cairo.Context):
         """avec la méthode line_to de cairo
         """
 
-        liste = zip(liste_de_points, liste_de_points[1:])
         self.move_to(*liste_de_points[0])
-        for couple in liste:
-            debut, fin = couple
-            # self.move_to(*debut)
-            self.line_to(*fin)
+        for couple in liste_de_points:
+            self.line_to(*couple)
 
     def _points_devies(self, liste_points):
         """ renvoie une liste de points déviés

@@ -24,10 +24,10 @@ ctx.set_source_rgba(238 / 255, 130 / 255, 238 / 255, .9)
 ctx.hatch_hdd(q, cc,
               angle=math.radians(115),
               nb=30,
-              condition=lambda x, y: not HDD.is_in_polygon(x, y, r))
+              condition=lambda x, y: not HDD.is_in(x, y, r))
 ctx.hatch_hdd(r, dd,
               angle=math.radians(115),
               nb=35,
-              condition=lambda x, y: not HDD.is_in_polygon(x, y, q))
+              condition=lambda x, y: not HDD.is_in(x, y, q))
 
 img.write_to_png("catriona38.png")
