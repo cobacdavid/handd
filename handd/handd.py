@@ -163,9 +163,10 @@ class HDD(_cairo.Context):
         """
 
         liste = zip(liste_de_points, liste_de_points[1:])
+        self.move_to(*liste_de_points[0])
         for couple in liste:
             debut, fin = couple
-            self.move_to(*debut)
+            # self.move_to(*debut)
             self.line_to(*fin)
 
     def _points_devies(self, liste_points):

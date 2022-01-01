@@ -55,6 +55,7 @@ ctx.set_source_rgba(0, 0, 1, .5)
 ctx.set_line_width(15)
 N = len(infos)
 
+ctx.set_dash([5, 30])
 for i, (p, bb) in enumerate(infos):
     ctx.hatch_hdd(p, bb,
                   nb=20,

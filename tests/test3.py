@@ -25,9 +25,9 @@ W = 1_080 - offset
 H = 1_920 - offset
 dim = 120
 
-N = 20
+N = 10
 for j in range(N):
-    HDD.deviation = (N-1) * 2 - 2 * j
+    HDD.deviation = (N - 1) * 2 - 2 * j
     img = cairo.ImageSurface(cairo.FORMAT_RGB24, W + offset, H + offset)
     ctx = HDD(img)
 
