@@ -58,7 +58,7 @@ N = len(infos)
 ctx.set_dash([5, 30])
 for i, (p, bb) in enumerate(infos):
     ctx.hatch_hdd(p, bb,
-                  nb=20,
+                  n=20,
                   condition=lambda x, y:
                   not HDD.is_in(x, y, infos[(i - 1) % N][0]) and
                   not HDD.is_in(x, y, infos[(i + 1) % N][0]))

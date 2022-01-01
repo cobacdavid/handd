@@ -54,7 +54,7 @@ for i in range(len(info_rect)):
     ctx.set_source_rgb(1, 0, 0)
     ctx.hatch_hdd(p, bb,
                   angle=-math.pi / 5,
-                  nb=10 + 10 * i,
+                  n=10 + 10 * i,
                   condition=condition)
     ctx.stroke()
 

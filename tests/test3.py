@@ -55,7 +55,7 @@ for j in range(N):
         couleur = int((1 + n) * 60)
         couleur_hsv = (10 / 360, couleur / 100, 1)
         ctx.set_source_rgb(*colorsys.hsv_to_rgb(*couleur_hsv))
-        ctx.hatch_hdd(p, bb, angle=angle, nb=10)
+        ctx.hatch_hdd(p, bb, angle=angle, n=10)
         ctx.stroke()
 
     img.write_to_png(f"animation{j:02}_test3.png")

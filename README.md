@@ -15,31 +15,31 @@ _Dependancy:_
 
 ### classmethod
 
-- `HDD.is_in(x, y, close_path)`
+- `HDD.is_in(x, y, closed_path)`
 
 ### methods on tuple lists
 
+- `hdd.lline_hdd(xy)`
 - `hdd.lpolygon_hdd(xy)` (returns `(p, bb)` path and bounding box)
 - `hdd.lround_point_hdd(xy)`
-- `hdd.lpoint_hdd(xy)`
-- `hdd.lline_hdd(xy)`
-- 
+- `hdd.lpoint_hdd(xy, radius=5)`
+
 ### basic figures methods
 
 - `hdd.rectangle_hdd(x, y, w, h)` (returns `(p, bb)` path and bounding box)
-- `hdd.regular_polygon_hdd(x, y, radius, n_sides, angle_radian=0)` (returns `(p, bb)` path and bounding box)
-- `hdd.disc_hdd(x, y, radius, a_debut, a_fin=None)` (returns `(p, bb)` path and bounding box)
-- `hdd.sector_hdd(x, y, radius, a_debut, a_fin, dev=3)` (returns `(p, bb)` path and bounding box)
-- `hdd.real_circle_hdd(self, xc, yc, r, step=.005)` (returns `(p, bb)` path and bounding box)
+- `hdd.regular_polygon_hdd(x, y, radius, n_sides, angle=0)` (returns `(p, bb)` path and bounding box)
+- `hdd.disc_hdd(x, y, radius, a_start, a_end=None)` (returns `(p, bb)` path and bounding box)
+- `hdd.sector_hdd(x, y, radius, a_start, a_end, dev=3)` (returns `(p, bb)` path and bounding box)
+- `hdd.real_circle_hdd(x, y, radius, step=.005)` (returns `(p, bb)` path and bounding box)
 - `hdd.circle_hdd(x, y, radius, dev=3, step=.01)` (returns `(p, bb)` path and bounding box)
 
 ### various methods
 
-- `hdd.hatch_hdd(closed_path, bbox, nb=10, angle=math.pi / 4, condition=lambda x, y: True)`
-- `hdd.dot_hdd(closed_path, bbox, sep=5)`
+- `hdd.hatch_hdd(path, bbox, n=10, angle=math.pi / 4, condition=lambda x, y: True)`
+- `hdd.dot_hdd(path, bbox, sep=5)`
 - `hdd.axes_hdd(x, y, units=None)`
-- `hdd.function_hdd(function, xmin, xmax, nb=15)`
-- `hdd.data_hdd(file)`
+- `hdd.function_hdd(f, xmin, xmax, n=15)`
+- `hdd.data_hdd(a_file)`
 
 ## Images from examples (see tests section)
 

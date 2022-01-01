@@ -42,7 +42,7 @@ def trace_rectangle(i):
                                W - 2 * offset, H - 2 * offset)
     ctx.hatch_hdd(p, bb,
                   angle=-math.pi / 5,
-                  nb=10 + 10 * i,
+                  n=10 + 10 * i,
                   condition=condition)
     ctx.stroke()
     ctx.restore()

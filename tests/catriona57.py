@@ -25,17 +25,17 @@ ctx.stroke()
 ctx.set_source_rgba(0, 172 / 255, 32 / 255, .9)
 ctx.hatch_hdd(q, cc,
               angle=0,
-              nb=60,
+              n=60,
               condition=lambda x, y: not HDD.is_in(x, y, p)
               and not HDD.is_in(x, y, r))
 ctx.hatch_hdd(r, dd,
               angle=0,
-              nb=40,
+              n=40,
               condition=lambda x, y: HDD.is_in(x, y, p)
               and not HDD.is_in(x, y, s))
 ctx.hatch_hdd(s, ee,
               angle=0,
-              nb=20,
+              n=20,
               condition=lambda x, y: not HDD.is_in(x, y, p))
 ctx.stroke()
 

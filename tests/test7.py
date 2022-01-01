@@ -28,7 +28,7 @@ for i in range(7):
     ctx.set_source_rgb(*couleur)
     p, bb = ctx.rectangle_hdd(-W / 2 + offset, - H / 2 + offset,
                                W - 2 * offset, H - 2 * offset)
-    ctx.hatch_hdd(p, bb, angle=-math.pi / 5, nb=10 + 10 * i)
+    ctx.hatch_hdd(p, bb, angle=-math.pi / 5, n=10 + 10 * i)
     ctx.stroke()
     ctx.rotate(.25)
     ctx.scale(0.65, 0.65)

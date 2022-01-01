@@ -20,10 +20,9 @@ p, bb = ctx.sector_hdd(350, 400, 300,
                        math.radians(35),
                        math.radians(325),
                        dev=5)
-ctx.hatch_hdd(p, bb, nb=50,
+ctx.hatch_hdd(p, bb, n=50,
               condition=lambda x, y: not HDD.is_in(x, y, pn))
 ctx.stroke()
-
 
 
 pilules = {"rouge": [(1, 0, 0), (550, 400)],
@@ -34,8 +33,8 @@ for pill in pilules:
     p, bb = ctx.circle_hdd(pilules[pill][1][0], pilules[pill][1][1], 70)
     ctx.set_source_rgba(*pilules[pill][0], .90)
     ctx.set_line_width(5)
-    ctx.hatch_hdd(p, bb, angle=-30, nb=20)
-    ctx.hatch_hdd(p, bb, angle=-50, nb=20)
+    ctx.hatch_hdd(p, bb, angle=-30, n=20)
+    ctx.hatch_hdd(p, bb, angle=-50, n=20)
     ctx.stroke()
 
 img.write_to_png("test6.png")

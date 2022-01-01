@@ -11,7 +11,7 @@ poly, bb_poly = ctx.regular_polygon_hdd(100, 100, 50, 4)
 ctx.stroke()
 ctx.set_source_rgb(0, 0, 1)
 ctx.set_line_width(3)
-ctx.hatch_hdd(poly, bb_poly, angle=math.pi / 6, nb=10)
+ctx.hatch_hdd(poly, bb_poly, angle=math.pi / 6, n=10)
 ctx.stroke()
 
 ctx.set_source_rgb(1, 1, 1)
@@ -35,7 +35,7 @@ ctx.set_line_width(3)
 HDD.deviation = 50
 ctx.function_hdd(lambda x: math.sin(x),
                    -2 * math.pi, 2 * math.pi,
-                   nb=50)
+                   n=50)
 ctx.stroke()
 
 img.write_to_png("test1.png")

@@ -50,7 +50,7 @@ for i, pack_c in enumerate(info_carres):
     #
     couleur_hsv = (0, couleur / 100, 1)
     ctx.set_source_rgb(*colorsys.hsv_to_rgb(*couleur_hsv))
-    ctx.hatch_hdd(p, bb, angle=angle, nb=nb)
+    ctx.hatch_hdd(p, bb, angle=angle, n=nb)
     ctx.stroke()
     #
     couleur_hsv = (200 / 360, couleur / 100, 1)

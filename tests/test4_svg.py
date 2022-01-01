@@ -52,7 +52,7 @@ for i, pack_r in enumerate(info_rectangles):
     width = 1 + int(5 * (150 - (nb - 3)) / 150)
     ctx.set_line_width(width)
     ctx.set_source_rgb(1, 1, 1)
-    ctx.hatch_hdd(p, bb, angle=angle, nb=nb)
+    ctx.hatch_hdd(p, bb, angle=angle, n=nb)
     ctx.stroke()
 
 for c in rectangles:
