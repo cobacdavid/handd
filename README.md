@@ -19,7 +19,7 @@ _Dependancy:_
 
 ### methods on tuple lists
 
-- `hdd.lline_hdd(xy)`
+- `hdd.lline_hdd(xy)` (return points list used to draw Bezier line)
 - `hdd.lpolygon_hdd(xy)` (returns `(p, bb)` path and bounding box)
 - `hdd.lround_point_hdd(xy)`
 - `hdd.lpoint_hdd(xy, radius=5)`
@@ -39,7 +39,7 @@ _Dependancy:_
 - `hdd.dot_hdd(path, bbox, sep=5)`
 - `hdd.axes_hdd(x, y, units=None)`
 - `hdd.function_hdd(f, xmin, xmax, n=15)`
-- `hdd.data_hdd(a_file)`
+- `hdd.data_hdd(a_file)` (functionnality actually not tested)
 
 ## Images from examples (see tests section)
 
@@ -58,11 +58,23 @@ _Dependancy:_
 ### test6
 ![](https://github.com/cobacdavid/handd/blob/master/tests/test6.png?raw=true)
 
-### catriona57
+### test7
+![](https://github.com/cobacdavid/handd/blob/master/tests/test7.png?raw=true)
 
+### test8
+![](https://github.com/cobacdavid/handd/blob/master/tests/test8.png?raw=true)
+
+
+### catriona17
+![](https://github.com/cobacdavid/handd/blob/master/tests/catriona17.png?raw=true)
+
+### catriona38
+![](https://github.com/cobacdavid/handd/blob/master/tests/catriona38.png?raw=true)
+
+### catriona57
 ![](https://github.com/cobacdavid/handd/blob/master/tests/catriona57.png?raw=true)
 
-_figure from Catriona Shearer's book "geometry puzzle"_
+_Catriona figures from [Catriona Shearer](https://twitter.com/Cshearer41)'s book "geometry puzzle"_
 
 
 

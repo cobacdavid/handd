@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
     name='handd',
-    version='0.1.1',
+    version='0.1.2',
     description='HAND-Drawn module for pycairo',
     long_description_content_type='text/markdown',
     long_description=long_description,

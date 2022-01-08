@@ -320,6 +320,7 @@ class HDD(_cairo.Context):
                   les hachres (par exemple)
         """
 
+        liste_reels = []
         # on fait les couples de lignes
         liste = zip(xy, xy[1:])
         for couple in liste:
@@ -333,12 +334,14 @@ class HDD(_cairo.Context):
             liste_points = self._points_devies(liste_points)
             # points qu'on va tracer réellement
             reels = self._bezier_points_reels(liste_points)
+            liste_reels += reels
             # ligne entre deux points successifs
             self._trace_par_couple(reels)
             # on trace chaque ligne pour avoir
             # possiblement un effet de superposition
             # avec la transparence (comme un feutre)
             self.stroke()
+        return liste_reels
 
     def lpolygon_hdd(self, xy):
         """Trace un polygone définit par une liste de points
@@ -774,6 +777,7 @@ class HDD(_cairo.Context):
         reels = self._bezier_points_reels(pts)
         # ligne entre deux points successifs
         self._trace_par_couple(reels)
+        return reels
 
     def data_hdd(self, a_file):
         """Définit un chemin de point en point en suivant les data
