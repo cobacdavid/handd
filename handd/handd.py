@@ -534,7 +534,7 @@ class HDD(_cairo.Context):
         HDD.deviation = save_dev
         return polygone, self._bbox(polygone)
 
-    def hatch_hdd(self, path, bbox, n=10, angle=_math.pi / 4,
+    def hatch_hdd(self, path, bbox=None, n=10, angle=_math.pi / 4,
                   condition=lambda x, y: True):
         """Hachure la zone définie par le chemin (fermé)
 
@@ -549,6 +549,8 @@ class HDD(_cairo.Context):
         :rtype: None
         """
 
+        if not bbox:
+            bbox = self._bbox(path)
         # angle est transformé pour appartenir à ]-90;90]
         # 0 et 90 étant traités comme cas particuliers
         angle = _math.degrees(angle)
