@@ -49,6 +49,7 @@ class Ligne:
 
 W = 800
 H = 800
+offset = 30
 img = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
 ctx = HDD(img)
 ctx.set_source_rgb(0, 0, 0)
@@ -58,7 +59,7 @@ ctx.fill()
 ctx.set_line_width = 1
 ctx.set_source_rgba(1, 1, 1, .3)
 
-N = 1_000
+N = 1_500
 while len(Ligne.liste) < N:
     if random.random() > .5:
         x1, x2 = random.randrange(W), random.randrange(W)
@@ -74,16 +75,18 @@ while len(Ligne.liste) < N:
     if not ligne.a_une_inter():
         if ligne.est_vertical():
             y1, y2 = min(y1, y2), max(y1, y2)
-            while y1 >= 0 and y2 < H and y1 != y2 and not ligne.a_une_inter():
+            while y1 >= offset and y2 < H - offset and y1 != y2 and not ligne.a_une_inter():
                 y1 -= 1
                 y2 += 1
                 ligne = Ligne((x1, y1), (x2, y2))
         else:
             x1, x2 = min(x1, x2), max(x1, x2)
-            while x1 >= 0 and x2 < W and x1 != x2 and not ligne.a_une_inter():
+            while x1 >= offset and x2 < W - offset and x1 != x2 and not ligne.a_une_inter():
                 x1 -= 1
                 x2 += 1
                 ligne = Ligne((x1, y1), (x2, y2))
         ligne.trace(False)
+        ligne = Ligne((x1, y1), (x2, y2))
+        ligne.trace(True)
 
 img.write_to_png("test8.png")

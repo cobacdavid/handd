@@ -1,6 +1,7 @@
 __author__ = "david cobac"
-__copyright__ = "Copyright 2021, CC-BY-NC-SA"
+__copyright__ = "Copyright 2021-2024, CC-BY-NC-SA"
 __date__ = 20211225
+__last_modifications__ = 20240113
 
 import cairo as _cairo
 import random as _random
@@ -299,7 +300,7 @@ class HDD(_cairo.Context):
             if HDD.debug:
                 self.save()
                 self.set_source_rgb(*HDD.debug_color)
-                self.set_line_width(1)
+                # self.set_line_width(1)
                 self.lround_point_hdd(liste)
                 self.stroke()
                 self.restore()
@@ -484,6 +485,36 @@ class HDD(_cairo.Context):
         # self._trace_par_couple(reels)
         # return reels, self._bbox(reels)
 
+    def arc_hdd(self, x, y, radius, a_start, a_end, dev=3):
+        """Trace un chemin "courant" au sens cairo en forme de secteur
+        angulaire
+
+        :param x: absc. centre du cercle
+        :type x: float
+        :param y: ord. centre du cercle
+        :type y: float
+        :param radius: rayon du cercle
+        :type radius: float
+        :param a_start: point de départ
+        :type a_start: tuple(float)
+        :param a_end: point d'arrivée
+        :type a_end: tuple(float)
+        :param dev: écrat-type
+        :type dev: float
+        :rtype: list(tuple)
+
+        """
+        save_dev = HDD.deviation
+        HDD.deviation = dev
+        polygone = []
+        polygone = self._points_regulierement_repartis_cercle(
+            (x, y), radius, a_start, a_end)
+        xy = self._points_devies(polygone)
+        reels = self._bezier_points_reels(xy)
+        self._trace_par_couple(reels)
+        HDD.deviation = save_dev
+        return reels, self._bbox(reels)
+
     def real_circle_hdd(self, x, y, radius, step=.005):
         """Trace un cercle cairo véritable
 
@@ -529,12 +560,15 @@ class HDD(_cairo.Context):
         polygone = self._points_regulierement_repartis_cercle(
             (x, y), radius, debut, fin, step=step)
         xy = self._points_devies(polygone)
+
+        xy = [polygone[0]] + xy[1:-1] + [polygone[0]]
+        
         reels = self._bezier_points_reels(xy)
         self._trace_par_couple(reels)
         HDD.deviation = save_dev
         return polygone, self._bbox(polygone)
 
-    def hatch_hdd(self, path, bbox=None, n=10, angle=_math.pi / 4,
+    def hatch_hdd(self, path, bbox, n=10, angle=_math.pi / 4,
                   condition=lambda x, y: True):
         """Hachure la zone définie par le chemin (fermé)
 
@@ -549,8 +583,6 @@ class HDD(_cairo.Context):
         :rtype: None
         """
 
-        if not bbox:
-            bbox = self._bbox(path)
         # angle est transformé pour appartenir à ]-90;90]
         # 0 et 90 étant traités comme cas particuliers
         angle = _math.degrees(angle)

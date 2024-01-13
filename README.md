@@ -30,6 +30,7 @@ _Dependancy:_
 - `hdd.regular_polygon_hdd(x, y, radius, n_sides, angle=0)` (returns `(p, bb)` path and bounding box)
 - `hdd.disc_hdd(x, y, radius, a_start, a_end=None)` (returns `(p, bb)` path and bounding box)
 - `hdd.sector_hdd(x, y, radius, a_start, a_end, dev=3)` (returns `(p, bb)` path and bounding box)
+- `hdd.arc_hdd(x, y, radius, a_start, a_end, dev=3)` (returns `(p, bb)` path and bounding box)
 - `hdd.real_circle_hdd(x, y, radius, step=.005)` (returns `(p, bb)` path and bounding box)
 - `hdd.circle_hdd(x, y, radius, dev=3, step=.01)` (returns `(p, bb)` path and bounding box)
 
@@ -81,4 +82,4 @@ _Catriona figures from [Catriona Shearer](https://twitter.com/Cshearer41)'s book
 
 ## Copyright
 
-2022 / D. COBAC / CC-BY-NC-SA
+2022-2024 / D. COBAC / CC-BY-NC-SA
