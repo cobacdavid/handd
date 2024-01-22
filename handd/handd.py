@@ -1,7 +1,7 @@
 __author__ = "david cobac"
 __copyright__ = "Copyright 2021-2024, CC-BY-NC-SA"
 __date__ = 20211225
-__last_modifications__ = 20240113
+__last_modifications__ = 20240122
 
 import cairo as _cairo
 import random as _random
@@ -159,7 +159,7 @@ class HDD(_cairo.Context):
 
         :param path: chemin
         :type path: list(tuple)
-        :rtype: list(tuple)
+        :rtype: list(float)
         """
 
         p = path[0]
@@ -175,7 +175,7 @@ class HDD(_cairo.Context):
                 my = y
             if y > My:
                 My = y
-        return [(mx, my), (Mx, My)]
+        return [mx, my, Mx, My]
 
     @staticmethod
     def _points_regulierement_repartis(start, end, N=10):
@@ -595,6 +595,9 @@ class HDD(_cairo.Context):
         elif angle == -90:
             angle = 90
         # bbox -> carre
+        # je reconstitue la bbox AVNAT 0.2 [(minx, miny), (maxx, maxy)]
+        bbox = [(bbox[0], bbox[1]), (bbox[2], bbox[3])]
+        #
         inf_gche = bbox[0]
         sup_droit = bbox[1]
         w, h = sup_droit[0] - inf_gche[0], sup_droit[1] - inf_gche[1]
@@ -740,8 +743,7 @@ class HDD(_cairo.Context):
         :rtype: None
         """
 
-        x0, y0 = bbox[0]
-        x1, y1 = bbox[1]
+        x0, y0, x1, y1 = bbox
 
         liste = []
         for x in range(round(x0), round(x1), sep):

@@ -20,24 +20,24 @@ _Dependancy:_
 ### methods on tuple lists
 
 - `hdd.lline_hdd(xy)` (return points list used to draw Bezier line)
-- `hdd.lpolygon_hdd(xy)` (returns `(p, bb)` path and bounding box)
+- `hdd.lpolygon_hdd(xy)` (returns `(p, bb)` : path (`list(tuple)` and bounding box `[xmin, xmax, ymin, ymax]`)
 - `hdd.lround_point_hdd(xy)`
 - `hdd.lpoint_hdd(xy, radius=5)`
 
 ### basic figures methods
 
-- `hdd.rectangle_hdd(x, y, w, h)` (returns `(p, bb)` path and bounding box)
-- `hdd.regular_polygon_hdd(x, y, radius, n_sides, angle=0)` (returns `(p, bb)` path and bounding box)
-- `hdd.disc_hdd(x, y, radius, a_start, a_end=None)` (returns `(p, bb)` path and bounding box)
-- `hdd.sector_hdd(x, y, radius, a_start, a_end, dev=3)` (returns `(p, bb)` path and bounding box)
-- `hdd.arc_hdd(x, y, radius, a_start, a_end, dev=3)` (returns `(p, bb)` path and bounding box)
-- `hdd.real_circle_hdd(x, y, radius, step=.005)` (returns `(p, bb)` path and bounding box)
-- `hdd.circle_hdd(x, y, radius, dev=3, step=.01)` (returns `(p, bb)` path and bounding box)
+- `hdd.rectangle_hdd(x, y, w, h)` (returns `(p, bb)` : path `list(tuple)` and bounding box `[xmin, xmax, ymin, ymax]`)
+- `hdd.regular_polygon_hdd(x, y, radius, n_sides, angle=0)` (returns `(p, bb)` : path `list(tuple)` and bounding box `[xmin, xmax, ymin, ymax]`)
+- `hdd.disc_hdd(x, y, radius, a_start, a_end=None)` (returns `(p, bb)` : path `list(tuple)` and bounding box `[xmin, xmax, ymin, ymax]`)
+- `hdd.sector_hdd(x, y, radius, a_start, a_end, dev=3)` (returns `(p, bb)` : path `list(tuple)` and bounding box `[xmin, xmax, ymin, ymax]`)
+- `hdd.arc_hdd(x, y, radius, a_start, a_end, dev=3)` (returns `(p, bb)` : path `list(tuple)` and bounding box `[xmin, xmax, ymin, ymax]`)
+- `hdd.real_circle_hdd(x, y, radius, step=.005)` (returns `(p, bb)` : path `list(tuple)` and bounding box `[xmin, xmax, ymin, ymax]`)
+- `hdd.circle_hdd(x, y, radius, dev=3, step=.01)` (returns `(p, bb)` : path `list(tuple)` and bounding box `[xmin, xmax, ymin, ymax]`)
 
 ### various methods
 
-- `hdd.hatch_hdd(path, bbox, n=10, angle=math.pi / 4, condition=lambda x, y: True)`
-- `hdd.dot_hdd(path, bbox, sep=5)`
+- `hdd.hatch_hdd(path, bbox, n=10, angle=math.pi / 4, condition=lambda x, y: True)` (path is `list(tuple)` and bounding box is `[xmin, xmax, ymin, ymax]`)
+- `hdd.dot_hdd(path, bbox, sep=5)` (path is `list(tuple)` and bounding box is `[xmin, xmax, ymin, ymax]`)
 - `hdd.axes_hdd(x, y, units=None)`
 - `hdd.function_hdd(f, xmin, xmax, n=15)`
 - `hdd.data_hdd(a_file)` (functionnality actually not tested)
